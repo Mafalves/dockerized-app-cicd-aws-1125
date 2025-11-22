@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Containerized APP - Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .info-card {
+            background: #f7f7f7;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        
+        .info-card strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .info-card span {
+            color: #333;
+            font-size: 1.2em;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .badge.dev {
+            background: #ffd700;
+            color: #333;
+        }
+        
+        .badge.staging {
+            background: #ff9500;
+            color: white;
+        }
+        
+        .badge.production {
+            background: #34c759;
+            color: white;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        .api-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .api-link:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DevOps Portfolio</h1>
+        <p class="subtitle">Dockerized Flask Application</p>
+        
+        <div class="info-card">
+            <strong>Version</strong>
+            <span>{{ version }}</span>
+        </div>
+        
+        <div class="info-card">
+            <strong>Environment</strong>
+            <span class="badge {{ environment }}">{{ environment }}</span>
+        </div>
+        
+        <div class="info-card">
+            <strong>Hostname</strong>
+            <span>{{ hostname }}</span>
+        </div>
+        
+        <a href="/api/info" class="api-link">View API Info →</a>
+        
+        <div class="footer">
+            <p>Deployed with Docker + CI/CD Pipeline</p>
+            <p>Infrastructure managed by Terraform</p>
+        </div>
+    </div>
+</body>
+</html>
