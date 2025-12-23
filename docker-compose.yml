@@ -1,0 +1,20 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: flask-app:local
+    container_name: flask-app-local
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - APP_VERSION=${APP_VERSION}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=${PORT}
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
