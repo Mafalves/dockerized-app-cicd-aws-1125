@@ -1,0 +1,62 @@
+name: Deploy Dockerized Flask App to AWS EC2
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      # 1. Authenticate with Docker Hub to pull the image
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # 2. Build and push image with dual tagging
+      # Tagging with 'latest' for the server and 'SHA' for history/rollback
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            matalve/flask-app:latest
+            matalve/flask-app:${{ github.sha }}
+      # 3. Authenticate with AWS to deploy the container
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 4. Trigger the deployment on EC2 via SSM
+      - name: Deploy new container via SSM
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy flask-app container version ${{ github.sha }}" \
+            --targets "Key=tag:Application,Values=flask-app" \
+            --parameters commands='[
+              "docker pull matalve/flask-app:latest",
+              "docker stop flask-app || true",
+              "docker rm -f flask-app || true",
+              "docker run -d \
+                --name flask-app \
+                --restart unless-stopped \
+                -p 80:5000 \
+                -e APP_VERSION=${{ github.sha }} \
+                -e ENVIRONMENT=production \
+                -e PORT=5000 \
+                matalve/flask-app:latest",
+              "docker image prune -f"
+            ]'
+            
