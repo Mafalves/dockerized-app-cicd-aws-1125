@@ -3,7 +3,6 @@
 A containerized Flask web application with automated CI/CD deployment to AWS EC2.
 
 ## Features Implemented
-
 - Flask application
 - Dockerfile (multi-stage build)
 - Docker Compose
