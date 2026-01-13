@@ -2,12 +2,13 @@
 
 A containerized Flask web application with automated CI/CD deployment to AWS EC2.
 
-## Current Status
-- ✅ Flask application created
-- ✅ Dockerfile (multi-stage build)
-- ✅ Docker Compose
-- ⏳ CI/CD Pipeline
-- ⏳ AWS Deployment
+## Features Implemented
+
+- Flask application
+- Dockerfile (multi-stage build)
+- Docker Compose
+- CI/CD pipeline
+- AWS deployment
 
 ## Local Development
 
