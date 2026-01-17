@@ -9,6 +9,41 @@ A containerized Flask web application with automated CI/CD deployment to AWS EC2
 - CI/CD pipeline
 - AWS deployment
 
+## CI/CD Pipeline
+
+```mermaid
+graph LR
+    A[Developer<br/>Push to main] --> B[GitHub Actions CI]
+    B --> C{Lint & Test}
+    C -->|Pass| D[Docker Build Test]
+    C -->|Fail| E[CI Fails]
+    D -->|Pass| F[GitHub Actions CD]
+    D -->|Fail| E
+    F --> G[Docker Hub<br/>Login]
+    G --> H[Build & Push Image<br/>latest + SHA tags]
+    H --> I[AWS SSM Command]
+    I --> J[EC2 Instance<br/>Tag: Application=flask-app]
+    J --> K[Docker Pull]
+    K --> L[Stop Old Container]
+    L --> M[Run New Container]
+    M --> N[App Deployed]
+```
+
+### Pipeline Flow
+
+1. **CI Workflow** (runs on push/PR):
+   - Code linting with flake8
+   - Test execution (optional)
+   - Dockerfile linting with hadolint
+   - Docker build validation
+
+2. **CD Workflow** (runs on push to main):
+   - Authenticate with Docker Hub
+   - Build and push image with `latest` and `${{ github.sha }}` tags
+   - Authenticate with AWS
+   - Send SSM command to EC2 instance(s) tagged `Application=flask-app`
+   - Instance pulls new image, stops old container, runs new container
+
 ## Local Development
 
 ### Prerequisites
