@@ -40,10 +40,10 @@ jobs:
         continue-on-error: true
 
       - name: Lint Dockerfile with hadolint
-        uses: hadolint/hadolint-action@@v3.1.0
+        uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: Dockerfile
-          fail_on_error: false  # This prevents the red "X" for minor issues
+          no-fail: 'true'  # Do not fail the job on hadolint findings (report only)
 
       - name: Build Docker image
         run: docker build . --file Dockerfile --tag flask-app:latest
