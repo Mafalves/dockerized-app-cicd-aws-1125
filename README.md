@@ -84,6 +84,8 @@ Visit `http://localhost:5000`
 - Docker (multi-stage builds)
 - Docker Compose
 
+The image is built and pushed by CD as `matalve/flask-app:latest` and `matalve/flask-app:$SHA`. For the full naming and tagging convention (local vs registry, K8s), see **k8s-app-deployment-0126** README.
+
 ## Building the Docker Image
 ```bash
 docker build -t flask-app:local .
