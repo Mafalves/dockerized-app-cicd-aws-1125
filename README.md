@@ -21,12 +21,16 @@ graph LR
     D -->|Fail| E
     F --> G[Docker Hub<br/>Login]
     G --> H[Build & Push Image<br/>latest + SHA tags]
-    H --> I[AWS SSM Command]
-    I --> J[EC2 Instance<br/>Tag: Application=flask-app]
-    J --> K[Docker Pull]
-    K --> L[Stop Old Container]
-    L --> M[Run New Container]
-    M --> N[App Deployed]
+    H --> I[Image on Docker Hub]
+    
+    subgraph Manual["Manual (when demoing)"]
+        J[Actions → Deploy to EC2] --> K[AWS SSM Command]
+        K --> L[EC2 Instance<br/>Tag: Application=flask-app]
+        L --> M[Docker Pull]
+        M --> N[Stop Old Container]
+        N --> O[Run New Container]
+        O --> P[App Deployed]
+    end
 ```
 
 ### Pipeline Flow
@@ -40,9 +44,14 @@ graph LR
 2. **CD Workflow** (runs on push to main):
    - Authenticate with Docker Hub
    - Build and push image with `latest` and `${{ github.sha }}` tags
+   - Image is available on Docker Hub for K8s (Project 3) or EC2
+
+3. **Deploy to EC2** (manual, `workflow_dispatch`):
+   - Run from GitHub Actions → "Deploy Dockerized Flask App to AWS EC2" → Run workflow
    - Authenticate with AWS
    - Send SSM command to EC2 instance(s) tagged `Application=flask-app`
-   - Instance pulls new image, stops old container, runs new container
+   - Instance pulls `latest`, stops old container, runs new container
+   - Use when you need to demo the app on EC2 (EC2 is not always running)
 
 ## Local Development
 
