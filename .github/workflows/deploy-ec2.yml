@@ -1,0 +1,45 @@
+name: Deploy Dockerized Flask App to AWS EC2
+
+on:
+  workflow_dispatch: # allows manual triggering of the workflow
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      # 1. Authenticate with AWS to deploy the container
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 2. Trigger the deployment on EC2 via SSM
+      - name: Deploy new container via SSM
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy flask-app container version ${{ github.sha }}" \
+            --targets "Key=tag:Application,Values=flask-app" \
+            --parameters commands='[
+              "docker pull matalve/flask-app:latest",
+              "docker stop flask-app || true",
+              "docker rm -f flask-app || true",
+              "docker run -d \
+                --name flask-app \
+                --restart unless-stopped \
+                -p 80:5000 \
+                -e APP_VERSION=${{ github.sha }} \
+                -e ENVIRONMENT=production \
+                -e PORT=5000 \
+                matalve/flask-app:latest",
+              "docker image prune -f"
+            ]'
+            
