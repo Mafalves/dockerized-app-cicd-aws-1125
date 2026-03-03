@@ -1,8 +1,9 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import os
 import socket
 import platform
 from datetime import datetime
+from prometheus_client import Counter, generate_latest
 
 
 app = Flask(__name__)
@@ -10,6 +11,14 @@ app = Flask(__name__)
 # Get version from environment variable (useful for CI/CD)
 APP_VERSION = os.getenv('APP_VERSION', '1.0.0')
 ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
+REQUESTS = Counter('flask_requests_total', 'Total number of requests', ['method', 'endpoint'])
+
+
+@app.after_request
+def record_request(response):
+    if request.path != '/metrics':
+        REQUESTS.labels(method=request.method, endpoint=request.path).inc()
+    return response
 
 
 @app.route('/')
@@ -41,6 +50,12 @@ def info():
         'python_version': platform.python_version(),
         'timestamp': datetime.utcnow().isoformat()
     })
+
+@app.route('/metrics')
+def metrics():
+    return generate_latest(), 200, {
+        'Content-Type': 'text/plain; version=0.0.4; charset=utf-8'
+    }
 
 if __name__ == '__main__':
     # Get port from environment variable (useful for Docker)
